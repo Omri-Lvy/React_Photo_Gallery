@@ -7,10 +7,11 @@ import { getImageObject } from "./Utils/imageUpload";
 import './App.css';
 import PhotoGallery from "./Components/PhotoGallery";
 import EnlargedImageModal from "./Components/EnlargedImageModal";
-import AddImageInput from "./Components/AddImageInput";
+import AddImageFileInput from "./Components/AddImageFileInput";
 import LoadImagesButton from "./Components/LoadImagesButton";
 import SelectImagesButton from "./Components/SelectImagesButton";
 import DeleteImagesButton from "./Components/DeleteImagesButton";
+import AddImageFromUrlInput from "./Components/AddImageFromURLInput";
 
 function App() {
   const folderId = process.env.REACT_APP_GOOGLE_DRIVE_FOLDER_ID || "";
@@ -52,12 +53,21 @@ function App() {
     }
   }
 
-  const newImagesHandler = async (files:File[]) => {
+  const newImagesHandler = async (files:File[]|string) => {
     const newImages = [];
+    if (typeof files === "string") {
+      const imageObject = await getImageObject(files);
+      if (imageObject) {
+        newImages.push(imageObject);
+      }
+    }
+    else
     for ( let i = 0; i < files.length; i++) {
         const image = files[i];
         const imageObject =  await getImageObject(image);
-        newImages.push(imageObject);
+        if (imageObject) {
+          newImages.push(imageObject);
+        }
     }
       setImages([...images,...newImages]);
   }
@@ -75,10 +85,15 @@ function App() {
         <div className="pb-8 px-2 flex flex-col justify-center">
           <SelectProvider>
             <h2 className="text-neutral-100 font-bold text-5xl md:text-6xl text-center mb-8">Photo Gallery</h2>
-            <div className="flex flex-row justify-center gap-6 flex-wrap">
-              <AddImageInput newImagesHandler={newImagesHandler}/>
-              <SelectImagesButton/>
-              <DeleteImagesButton deleteImages={deleteImages}/>
+            <div className="flex flex-row justify-center flex-wrap lg:gap-4">
+              <div className="flex flex-wrap justify-center items-center gap-4">
+                <AddImageFromUrlInput newImagesHandler={newImagesHandler}/>
+                <AddImageFileInput newImagesHandler={newImagesHandler}/>
+              </div>
+              <div className="flex justify-center items-center gap-4">
+                <SelectImagesButton/>
+                <DeleteImagesButton deleteImages={deleteImages}/>
+              </div>
             </div>
             <ModalProvider>
                 <PhotoGallery images={images} deleteImage={deleteImages}/>

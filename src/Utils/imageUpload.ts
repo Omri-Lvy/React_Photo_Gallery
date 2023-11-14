@@ -1,9 +1,25 @@
-export const getImageObject = async (image: File) => {
-    const id = image.name.replace(/\s+/g, '_').toLowerCase().replace(/[^a-z0-9_]/g, '');
-    const thumbnailLink = URL.createObjectURL(image);
-    const webContentLink = URL.createObjectURL(image);
-    const name = image.name;
-    const dimensions = await getImageDimensions(image);
+export const getImageObject = async (image: File|string) => {
+    let blob: Blob;
+    if (typeof image === 'string') {
+        // If it's a string, assume it's a URL and fetch the image
+        try {
+            const response = await fetch(image);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch image from URL. Status: ${response.status}`);
+            }
+            blob = await response.blob();
+        } catch (e) {
+            console.error(e);
+            return null;
+        }
+    } else {
+        blob = image;
+    }
+    const id = (typeof image === 'string' ? image : image.name)?.replace(/\s+/g, '_').toLowerCase().replace(/[^a-z0-9_]/g, '');
+    const thumbnailLink = URL.createObjectURL(blob);
+    const webContentLink = URL.createObjectURL(blob);
+    const name = (typeof image === 'string' ? image : image.name);
+    const dimensions = await getImageDimensions(blob);
     const imageMediaMetadata = {
         height: dimensions.height,
         width: dimensions.width
@@ -17,7 +33,7 @@ export const getImageObject = async (image: File) => {
     };
 }
 
-const getImageDimensions = (file: File): Promise<{ height: number; width: number }> => {
+const getImageDimensions = (file: File|Blob): Promise<{ height: number; width: number }> => {
     return new Promise((resolve) => {
         const img = new Image();
 
