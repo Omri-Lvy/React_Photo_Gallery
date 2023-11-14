@@ -3,7 +3,7 @@
 ## Description
 This project is connected to a google drive folder and displays the images in a gallery. The images are displayed in a grid. The images can be clicked to view them in a modal.
 You can also upload new images from your computer although they won't be saved after refresh.
-You can see a live demo here: [live demo](https://react-images-gallery.netlify.app/)
+You can see a live demo here: [live demo](https://react-image-gallery-chdo.onrender.com/)
 
 ## Installation
 
